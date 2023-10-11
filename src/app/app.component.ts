@@ -15,6 +15,7 @@ export class AppComponent implements OnInit {
 
   public isMobileLayout = false;
   ngOnInit() {
+    // Check whether to apply a mobile layout. Also check on resize.
     const mobileCheck = (w: Window) => w.innerWidth <= 991;
     this.isMobileLayout = mobileCheck(window);
     window.onresize = () => this.isMobileLayout = mobileCheck(window);

@@ -44,9 +44,20 @@ class TreeNodeFetcherService {
   }
 }
 
+/** Object responsible for listening to changes in the tree, specifically when expansions
+ *  are toggled.
+ *  Adds/removes the relevant nodes and requests them from the backend if necessary.*/
 class DynamicDataSource implements DataSource<TreeNode> {
+  /** A stream that we can push our tree changes to */
   dataChange = new BehaviorSubject<TreeNode[]>([]);
 
+  constructor(
+    private _treeControl: FlatTreeControl<TreeNode>,
+    private _nodeFetcher: TreeNodeFetcherService,
+    private _snackBar: MatSnackBar,
+  ) {}
+
+  /** Holds the state of the tree */
   get data(): TreeNode[] {
     return this.dataChange.value;
   }
@@ -55,13 +66,8 @@ class DynamicDataSource implements DataSource<TreeNode> {
     this.dataChange.next(value);
   }
 
-  constructor(
-    private _treeControl: FlatTreeControl<TreeNode>,
-    private _nodeFetcher: TreeNodeFetcherService,
-    private _snackBar: MatSnackBar,
-  ) {}
-
   connect(collectionViewer: CollectionViewer): Observable<readonly TreeNode[]> {
+    // listen to changes to the list of expanded nodes and react
     this._treeControl.expansionModel.changed.subscribe(change => {
       if (
         (change as SelectionChange<TreeNode>).added ||
@@ -70,11 +76,15 @@ class DynamicDataSource implements DataSource<TreeNode> {
         this.handleTreeControl(change as SelectionChange<TreeNode>);
       }
     });
-
+    // Merge the collectionViewer stream with our own one, so that the resulting stream emits
+    // both when the tree changes as well as when we make it update. 
+    // The Observable always returns this.data, as this is where we choose
+    // to store the truth of the tree.
     return merge(collectionViewer.viewChange, this.dataChange).pipe(map(() => this.data));
   }
   disconnect(_collectionViewer: CollectionViewer): void {}
   
+  /** Get the sub-collections of a collection from the backend. */
   fetchNodeChildren(tNode: TreeNode) {
     const t = this;
     tNode.isLoading = true;
@@ -86,6 +96,7 @@ class DynamicDataSource implements DataSource<TreeNode> {
         t.dataChange.next(t.data);
       },
       error(_err) {
+        tNode.isLoading = false;
         t._snackBar.open(`Die Untersammlungen der Sammlung ${tNode.name} konnten nicht geladen werden.`, 'Ok', {
           verticalPosition: 'top'
         });
@@ -93,6 +104,7 @@ class DynamicDataSource implements DataSource<TreeNode> {
     })
   }
 
+  /** Reacts to toggled tree nodes by toggling their representations. */
   handleTreeControl(change: SelectionChange<TreeNode>) {
     if (change.added) {
       change.added.forEach(tNode => this.toggleNode(tNode, true));
@@ -105,6 +117,7 @@ class DynamicDataSource implements DataSource<TreeNode> {
     }
   }
 
+  /** Adds or removes the children of a node, depending on whether it was expanded. */
   toggleNode(tNode: TreeNode, expand: boolean) {
     const index = this.data.indexOf(tNode);
     if (tNode.children === undefined || index < 0) {
