@@ -1,2 +1,16 @@
-<app-tree-view></app-tree-view>
+<mat-sidenav-container>
+    <mat-sidenav *ngIf="!isMobileLayout else mobileCollection" mode="side" position="end" opened>
+        <app-collection-view [collection]="selection"></app-collection-view>
+    </mat-sidenav>
+    <mat-sidenav-content [class.mobile-sidenav-content]="isMobileLayout">
+        <mat-card>
+            <app-tree-view [class.mobile-tree-view]="isMobileLayout" (nodeSelectionEvent)="setSelection($event)"></app-tree-view>
+        </mat-card>
+    </mat-sidenav-content>
+    <ng-template #mobileCollection>
+        <div class="mobile-collection-view">
+            <app-collection-view [collection]="selection"></app-collection-view>
+        </div>
+    </ng-template>
+</mat-sidenav-container>
 <router-outlet></router-outlet>

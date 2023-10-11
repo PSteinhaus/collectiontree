@@ -1,5 +1,5 @@
 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
-  <mat-tree-node class="leaf-node" *matTreeNodeDef="let node" matTreeNodePadding>
+  <mat-tree-node matRipple *matTreeNodeDef="let node" (click)="selectNode(node)" [class.selected]="selectedNode === node" matTreeNodePadding>
     <button mat-icon-button *ngIf="isExpandable(node); else leafNode"
             [attr.aria-label]="'Toggle ' + node.name" matTreeNodeToggle>
       <mat-icon class="mat-icon-rtl-mirror">

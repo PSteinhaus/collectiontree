@@ -7,6 +7,10 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { EduSharingApiModule } from 'ngx-edu-sharing-api';
 import { environment } from 'src/environments/environment';
 import { TreeViewComponent } from "./tree-view/tree-view.component";
+import { CollectionViewComponent } from './collection-view/collection-view.component';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatCardModule } from '@angular/material/card';
+import { MatListModule } from '@angular/material/list';
 
 @NgModule({
     declarations: [
@@ -21,6 +25,10 @@ import { TreeViewComponent } from "./tree-view/tree-view.component";
         EduSharingApiModule.forRoot({ rootUrl: environment.eduSharingApiUrl }),
         TreeViewComponent,
         HttpClientModule,
+        MatSidenavModule,
+        MatCardModule,
+        MatListModule,
+        CollectionViewComponent
     ]
 })
 export class AppModule { }

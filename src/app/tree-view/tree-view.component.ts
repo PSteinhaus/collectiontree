@@ -9,6 +9,8 @@ import { CollectionFetcherService } from '../services/collection-fetcher.service
 import { BehaviorSubject, map, merge, Observable } from 'rxjs';
 import { CollectionViewer, DataSource, SelectionChange } from '@angular/cdk/collections';
 import { NgIf } from '@angular/common';
+import { Output, EventEmitter } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 
 export class TreeNode {
   public children: Array<TreeNode> | undefined;
@@ -128,7 +130,7 @@ class DynamicDataSource implements DataSource<TreeNode> {
   templateUrl: './tree-view.component.html',
   styleUrls: ['./tree-view.component.scss'],
   standalone: true,
-  imports: [MatTreeModule, MatButtonModule, MatIconModule, NgIf, MatProgressBarModule],
+  imports: [MatTreeModule, MatButtonModule, MatIconModule, NgIf, MatProgressBarModule, MatRippleModule],
 })
 export class TreeViewComponent implements OnInit {
   constructor(private nodeFetcher: TreeNodeFetcherService) {
@@ -155,4 +157,17 @@ export class TreeViewComponent implements OnInit {
   }
 
   hasChildren = (_: number, tNode: TreeNode) => tNode.children !== undefined && tNode.children.length > 0;
+
+  selectedNode: TreeNode | null = null;
+  selectNode(tNode: TreeNode) {
+    if (this.selectedNode == tNode) {
+      this.selectedNode = null;
+      this.nodeSelectionEvent.emit(null);
+    } else {
+      this.selectedNode = tNode;
+      this.nodeSelectionEvent.emit(tNode.node);
+    }
+  }
+
+  @Output() nodeSelectionEvent = new EventEmitter<Node | null>();
 }

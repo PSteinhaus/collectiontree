@@ -1,0 +1,40 @@
+mat-sidenav-container {
+    width: auto;
+    height: 100%;
+    display: block;
+    overflow-y: scroll;
+}
+
+mat-sidenav-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: auto;
+    height: 100%;
+}
+
+.mobile-sidenav-content {
+    height: auto;
+}
+
+mat-sidenav {
+    padding: 2em;
+    width: calc(240px + 15vw);
+}
+
+app-collection-view {
+    padding: 15%;
+}
+
+.mobile-collection-view {
+    margin: -10%;
+    margin-bottom: -13%;
+}
+
+app-tree-view {
+    min-width: 50vw;
+}
+
+.mobile-tree-view {
+    width: 100vw;
+}

@@ -1,0 +1,32 @@
+:host {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.collection-title {
+    padding-top: 32px;
+}
+
+.no-c-selected {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f5f5f5;
+}
+
+.no-c-title {
+    margin: 16px;
+}
+
+img {
+    max-width: 30vw;
+}
+
+.collection-details {
+    display: flex;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+}
