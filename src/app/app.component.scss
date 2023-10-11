@@ -38,3 +38,13 @@ app-tree-view {
 .mobile-tree-view {
     width: 100vw;
 }
+
+app-footer {
+    overflow: visible;
+    box-shadow: 0 -2px 4px #eee;
+    position: fixed;
+    bottom: 0;
+    z-index: 100000;
+    width: 100%;
+    background-color: white;
+}

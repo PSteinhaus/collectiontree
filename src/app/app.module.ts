@@ -11,6 +11,7 @@ import { CollectionViewComponent } from './collection-view/collection-view.compo
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
+import { FooterComponent } from './footer/footer.component';
 
 @NgModule({
     declarations: [
@@ -28,7 +29,8 @@ import { MatListModule } from '@angular/material/list';
         MatSidenavModule,
         MatCardModule,
         MatListModule,
-        CollectionViewComponent
+        CollectionViewComponent,
+        FooterComponent
     ]
 })
 export class AppModule { }
