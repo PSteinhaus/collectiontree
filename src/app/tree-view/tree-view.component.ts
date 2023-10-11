@@ -11,6 +11,7 @@ import { CollectionViewer, DataSource, SelectionChange } from '@angular/cdk/coll
 import { NgIf } from '@angular/common';
 import { Output, EventEmitter } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatSnackBar, MatSnackBarVerticalPosition, MatSnackBarModule } from '@angular/material/snack-bar';
 
 export class TreeNode {
   public children: Array<TreeNode> | undefined;
@@ -57,6 +58,7 @@ class DynamicDataSource implements DataSource<TreeNode> {
   constructor(
     private _treeControl: FlatTreeControl<TreeNode>,
     private _nodeFetcher: TreeNodeFetcherService,
+    private _snackBar: MatSnackBar,
   ) {}
 
   connect(collectionViewer: CollectionViewer): Observable<readonly TreeNode[]> {
@@ -71,7 +73,7 @@ class DynamicDataSource implements DataSource<TreeNode> {
 
     return merge(collectionViewer.viewChange, this.dataChange).pipe(map(() => this.data));
   }
-  disconnect(collectionViewer: CollectionViewer): void {}
+  disconnect(_collectionViewer: CollectionViewer): void {}
   
   fetchNodeChildren(tNode: TreeNode) {
     const t = this;
@@ -79,12 +81,15 @@ class DynamicDataSource implements DataSource<TreeNode> {
     this._nodeFetcher.getChildren(tNode.node.ref.id, tNode.level + 1).subscribe({
       next(tNodes) {
         tNode.children = tNodes;
-        console.log('children: ',tNodes);
         tNode.isLoading = false;
         // notify the tree of the change
         t.dataChange.next(t.data);
-        console.log('data: ', t.data)
-      }
+      },
+      error(_err) {
+        t._snackBar.open(`Die Untersammlungen der Sammlung ${tNode.name} konnten nicht geladen werden.`, 'Ok', {
+          verticalPosition: 'top'
+        });
+      },
     })
   }
 
@@ -130,12 +135,12 @@ class DynamicDataSource implements DataSource<TreeNode> {
   templateUrl: './tree-view.component.html',
   styleUrls: ['./tree-view.component.scss'],
   standalone: true,
-  imports: [MatTreeModule, MatButtonModule, MatIconModule, NgIf, MatProgressBarModule, MatRippleModule],
+  imports: [MatTreeModule, MatButtonModule, MatIconModule, NgIf, MatProgressBarModule, MatRippleModule, MatSnackBarModule],
 })
 export class TreeViewComponent implements OnInit {
-  constructor(private nodeFetcher: TreeNodeFetcherService) {
+  constructor(private _nodeFetcher: TreeNodeFetcherService, private _snackBar: MatSnackBar) {
     this.treeControl = new FlatTreeControl<TreeNode>(this.getLevel, this.isExpandable);
-    this.dataSource = new DynamicDataSource(this.treeControl, nodeFetcher);
+    this.dataSource = new DynamicDataSource(this.treeControl, _nodeFetcher, _snackBar);
   }
   
   treeControl: FlatTreeControl<TreeNode>;
@@ -146,13 +151,19 @@ export class TreeViewComponent implements OnInit {
 
   ngOnInit(): void {
     // get the root collections to seed the data
-    const ds = this.dataSource
-    this.nodeFetcher.getChildren('-root-', 1).subscribe({
+    const ds = this.dataSource;
+    const sBar = this._snackBar;
+    this._nodeFetcher.getChildren('-root-', 1).subscribe({
       next(tNodeArray) { 
         // fetch the grand children, so that the user sees which nodes are expandable
-        tNodeArray.forEach( tNode => ds.fetchNodeChildren(tNode) )
+        tNodeArray.forEach( tNode => ds.fetchNodeChildren(tNode) );
         ds.data = tNodeArray;
-      }
+      },
+      error(_err) {
+        sBar.open('Sammlungen konnten nicht geladen werden.', 'Ok', {
+          verticalPosition: 'top'
+        });
+      },
     })
   }
 
