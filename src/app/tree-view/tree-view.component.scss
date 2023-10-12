@@ -1,5 +1,10 @@
 .example-tree-progress-bar {
     margin: 0 30px;
+    flex: 25 1 0px;
+}
+
+mat-spinner {
+    margin: auto;
 }
 
 mat-tree {
@@ -11,8 +16,11 @@ button {
 }
 
 mat-tree-node {
-    white-space: nowrap;
     cursor: pointer;
+}
+
+mat-tree-node span {
+    flex: 1 1 max-content
 }
 
 mat-tree-node:first-child {

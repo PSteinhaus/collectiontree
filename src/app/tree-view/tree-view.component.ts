@@ -11,8 +11,10 @@ import { CollectionViewer, DataSource, SelectionChange } from '@angular/cdk/coll
 import { NgIf } from '@angular/common';
 import { Output, EventEmitter } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { MatSnackBar, MatSnackBarVerticalPosition, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { environment } from 'src/environments/environment';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatCardModule } from '@angular/material/card';
 
 export class TreeNode {
   public children: Array<TreeNode> | undefined;
@@ -56,6 +58,7 @@ class DynamicDataSource implements DataSource<TreeNode> {
     private _treeControl: FlatTreeControl<TreeNode>,
     private _nodeFetcher: TreeNodeFetcherService,
     private _snackBar: MatSnackBar,
+    private _isExpandable: (tNode: TreeNode) => boolean,
   ) {}
 
   /** Holds the state of the tree */
@@ -93,6 +96,9 @@ class DynamicDataSource implements DataSource<TreeNode> {
       next(tNodes) {
         tNode.children = tNodes;
         tNode.isLoading = false;
+        // directly add the loaded collections to the tree, just below the parent node
+        const index = t.data.indexOf(tNode);
+        t.data.splice(index + 1, 0, ...tNode.children);
         // notify the tree of the change
         t.dataChange.next(t.data);
       },
@@ -121,14 +127,13 @@ class DynamicDataSource implements DataSource<TreeNode> {
   /** Adds or removes the children of a node, depending on whether it was expanded. */
   toggleNode(tNode: TreeNode, expand: boolean) {
     const index = this.data.indexOf(tNode);
-    if (tNode.children === undefined || index < 0) {
+    if (!this._isExpandable(tNode) || index < 0) {
       return;
     }
     
     if (expand) {
-      // now that they get visible the children need to fetch their own children
-      tNode.children.forEach(childNode => this.fetchNodeChildren(childNode));
-      this.data.splice(index + 1, 0, ...tNode.children);
+      // fetch the sub-collections and add them to the tree
+      this.fetchNodeChildren(tNode);
     } else {
       let count = 0;
       for (
@@ -149,29 +154,30 @@ class DynamicDataSource implements DataSource<TreeNode> {
   templateUrl: './tree-view.component.html',
   styleUrls: ['./tree-view.component.scss'],
   standalone: true,
-  imports: [MatTreeModule, MatButtonModule, MatIconModule, NgIf, MatProgressBarModule, MatRippleModule, MatSnackBarModule],
+  imports: [MatTreeModule, MatButtonModule, MatIconModule, NgIf, MatProgressBarModule, MatRippleModule, MatSnackBarModule, MatProgressSpinnerModule, MatCardModule],
 })
 export class TreeViewComponent implements OnInit {
   constructor(private _nodeFetcher: TreeNodeFetcherService, private _snackBar: MatSnackBar) {
     this.treeControl = new FlatTreeControl<TreeNode>(this.getLevel, this.isExpandable);
-    this.dataSource = new DynamicDataSource(this.treeControl, _nodeFetcher, _snackBar);
+    this.dataSource = new DynamicDataSource(this.treeControl, _nodeFetcher, _snackBar, this.isExpandable);
   }
   
   treeControl: FlatTreeControl<TreeNode>;
   dataSource: DynamicDataSource;
+  isLoading = true;
 
   getLevel = (tNode: TreeNode) => tNode.level;
-  isExpandable = (tNode: TreeNode) => tNode.children !== undefined && tNode.children.length > 0;
+  isExpandable = (tNode: TreeNode) => tNode.node?.collection?.childCollectionsCount !== undefined && tNode.node?.collection?.childCollectionsCount > 0;
 
   ngOnInit(): void {
     // get the root collections to seed the data
     const ds = this.dataSource;
     const sBar = this._snackBar;
+    const t = this;
     this._nodeFetcher.getChildren(environment.rootCollectionID, 1).subscribe({
       next(tNodeArray) { 
-        // fetch the grand children, so that the user sees which nodes are expandable
-        tNodeArray.forEach( tNode => ds.fetchNodeChildren(tNode) );
         ds.data = tNodeArray;
+        t.isLoading = false;
       },
       error(_err) {
         sBar.open('Sammlungen konnten nicht geladen werden.', 'Ok', {
@@ -180,8 +186,6 @@ export class TreeViewComponent implements OnInit {
       },
     })
   }
-
-  hasChildren = (_: number, tNode: TreeNode) => tNode.children !== undefined && tNode.children.length > 0;
 
   selectedNode: TreeNode | null = null;
   selectNode(tNode: TreeNode) {

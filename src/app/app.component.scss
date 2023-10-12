@@ -11,10 +11,6 @@ mat-sidenav-content {
     height: 100%;
 }
 
-mat-card {
-    margin: auto;
-}
-
 .mobile-sidenav-content {
     height: auto;
 }
@@ -35,6 +31,7 @@ app-collection-view {
 
 app-tree-view {
     min-width: 50vw;
+    margin: auto;
 }
 
 .mobile-tree-view {
