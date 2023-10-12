@@ -7,10 +7,12 @@ mat-sidenav-container {
 
 mat-sidenav-content {
     display: flex;
-    justify-content: center;
-    align-items: center;
     width: auto;
     height: 100%;
+}
+
+mat-card {
+    margin: auto;
 }
 
 .mobile-sidenav-content {

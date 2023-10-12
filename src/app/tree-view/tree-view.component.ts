@@ -12,6 +12,7 @@ import { NgIf } from '@angular/common';
 import { Output, EventEmitter } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatSnackBar, MatSnackBarVerticalPosition, MatSnackBarModule } from '@angular/material/snack-bar';
+import { environment } from 'src/environments/environment';
 
 export class TreeNode {
   public children: Array<TreeNode> | undefined;
@@ -21,7 +22,7 @@ export class TreeNode {
     public level: number,
   ) {}
 
-  public get name() { return this.node.name; }
+  public get title() { return this.node.title; }
 }
 
 @Injectable({
@@ -97,7 +98,7 @@ class DynamicDataSource implements DataSource<TreeNode> {
       },
       error(_err) {
         tNode.isLoading = false;
-        t._snackBar.open(`Die Untersammlungen der Sammlung ${tNode.name} konnten nicht geladen werden.`, 'Ok', {
+        t._snackBar.open(`Die Untersammlungen der Sammlung ${tNode.title} konnten nicht geladen werden.`, 'Ok', {
           verticalPosition: 'top'
         });
       },
@@ -166,7 +167,7 @@ export class TreeViewComponent implements OnInit {
     // get the root collections to seed the data
     const ds = this.dataSource;
     const sBar = this._snackBar;
-    this._nodeFetcher.getChildren('-root-', 1).subscribe({
+    this._nodeFetcher.getChildren(environment.rootCollectionID, 1).subscribe({
       next(tNodeArray) { 
         // fetch the grand children, so that the user sees which nodes are expandable
         tNodeArray.forEach( tNode => ds.fetchNodeChildren(tNode) );

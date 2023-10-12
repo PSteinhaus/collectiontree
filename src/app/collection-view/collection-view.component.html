@@ -1,7 +1,7 @@
 <ng-container *ngIf="collection else noneSelected">
     <img *ngIf="collection?.iconURL" [src]="collection.iconURL">
     <div class="collection-details">
-        <h3 class="collection-title">{{collection.name}}</h3>
+        <h3 class="collection-title">{{collection.title}}</h3>
         <mat-list>
             <mat-list-item lines="3">
                 <span matListItemTitle>Beschreibung</span>

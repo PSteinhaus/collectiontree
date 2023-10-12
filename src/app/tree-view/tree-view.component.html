@@ -1,7 +1,7 @@
 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
   <mat-tree-node matRipple *matTreeNodeDef="let node" (click)="selectNode(node)" [class.selected]="selectedNode === node" matTreeNodePadding>
     <button mat-icon-button *ngIf="isExpandable(node); else leafNode"
-            [attr.aria-label]="'Toggle ' + node.name" matTreeNodeToggle>
+            [attr.aria-label]="'Toggle ' + node.title" matTreeNodeToggle>
       <mat-icon class="mat-icon-rtl-mirror">
         {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
       </mat-icon>
@@ -9,7 +9,7 @@
     <ng-template #leafNode>
       <div class="leaf-padding"></div>
     </ng-template>
-    {{node.name}}
+    {{node.title}}
     <mat-progress-bar *ngIf="node.isLoading"
                       mode="indeterminate"
                       class="example-tree-progress-bar"></mat-progress-bar>
