@@ -1,8 +1,12 @@
 mat-sidenav-container {
     width: auto;
-    height: 100%;
+    height: calc(100% - 66px);
     display: block;
     overflow-y: scroll;
+}
+
+.mobile-sidenav-container {
+    height: 100%;
 }
 
 mat-sidenav-content {
@@ -39,11 +43,20 @@ app-tree-view {
 }
 
 app-footer {
+    height: 66px;
     overflow: visible;
     box-shadow: 0 -2px 4px #eee;
-    position: fixed;
     bottom: 0;
+    position: fixed;
     z-index: 100000;
     width: 100%;
     background-color: white;
+    color: #303030;
+}
+
+.mobile-footer {
+    height: auto;
+    position: static;
+    background-color: #eee;
+    color: black;
 }

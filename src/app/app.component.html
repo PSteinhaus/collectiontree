@@ -1,4 +1,4 @@
-<mat-sidenav-container>
+<mat-sidenav-container [class.mobile-sidenav-container]="isMobileLayout">
     <mat-sidenav *ngIf="!isMobileLayout else mobileCollection" mode="side" position="end" opened>
         <app-collection-view [collection]="selection"></app-collection-view>
     </mat-sidenav>
@@ -11,5 +11,5 @@
         </div>
     </ng-template>
 </mat-sidenav-container>
-<app-footer></app-footer>
+<app-footer [class.mobile-footer]="isMobileLayout"></app-footer>
 <router-outlet></router-outlet>
